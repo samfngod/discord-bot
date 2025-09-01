@@ -1,4 +1,3 @@
-discord.py
-aiohttp
-python-dotenv
-Flask>=2.3.3
+discord.py>=2.3.2
+aiohttp>=3.8.6
+requests>=2.31.0
