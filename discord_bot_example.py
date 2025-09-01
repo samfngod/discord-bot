@@ -1,16 +1,19 @@
-# discord_bot_example.py
-# Bot con slash command /gencode che crea un codice one-time
-# e lo registra sulla tua API (endpoint /addcode).
-
-import os, aiohttp, random, string
+import os
+import aiohttp
+import random
+import string
 import discord
 from discord.ext import commands
+import asyncio
+from aiohttp import web
 
+# ----------------- CONFIG -----------------
 API_URL = os.getenv("API_URL", "").rstrip("/")           # es: https://auth-api-xxxxx.onrender.com
-# Default di sicurezza: usa ENV; se non presente, fallback alla chiave che mi hai dato (puoi toglierla se vuoi)
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")           # token del bot dal Developer Portal
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
+PORT = int(os.environ.get("PORT", 10000))               # Render imposta la porta tramite env
 
+# ----------------- BOT DISCORD -----------------
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -61,7 +64,24 @@ async def gencode(interaction: discord.Interaction):
         await interaction.response.send_message("Errore nella creazione del codice.", ephemeral=True)
         print("[BOT] Risposta API:", data)
 
+# ----------------- SERVER WEB PER RENDER -----------------
+async def handle(request):
+    return web.Response(text="Bot online ✔️")
+
+app = web.Application()
+app.add_routes([web.get("/", handle)])
+
+async def start_web_server():
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    await site.start()
+    print(f"[WEB] Server web in ascolto su porta {PORT}")
+
+# ----------------- MAIN -----------------
 if __name__ == "__main__":
     if not DISCORD_TOKEN:
         raise SystemExit("Manca DISCORD_TOKEN nelle variabili d'ambiente.")
+    loop = asyncio.get_event_loop()
+    loop.create_task(start_web_server())  # avvia server web in parallelo
     bot.run(DISCORD_TOKEN)
