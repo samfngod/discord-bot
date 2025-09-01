@@ -8,10 +8,10 @@ import asyncio
 from aiohttp import web
 
 # ----------------- CONFIG -----------------
-API_URL = os.getenv("API_URL", "").rstrip("/")
+API_URL = os.getenv("API_URL", "").rstrip("/")       # es: https://auth-api-xxxxx.onrender.com
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-PORT = int(os.environ.get("PORT", 10000))
+PORT = int(os.environ.get("PORT", 12345))           # Cambiata porta, Render assegna variabile PORT
 
 # ----------------- BOT DISCORD -----------------
 intents = discord.Intents.default()
@@ -23,9 +23,9 @@ def make_code(n: int = 6) -> str:
 
 @bot.event
 async def on_ready():
+    print(f"[BOT] Online come {bot.user} • Slash commands sincronizzati")
     try:
         await bot.tree.sync()
-        print(f"[BOT] Online come {bot.user} • Slash commands sincronizzati")
     except Exception as e:
         print("[BOT] Errore sync slash:", e)
 
@@ -83,5 +83,5 @@ if __name__ == "__main__":
     if not DISCORD_TOKEN:
         raise SystemExit("Manca DISCORD_TOKEN nelle variabili d'ambiente.")
     loop = asyncio.get_event_loop()
-    loop.create_task(start_web_server())
+    loop.create_task(start_web_server())  # avvia server web in parallelo
     bot.run(DISCORD_TOKEN)
