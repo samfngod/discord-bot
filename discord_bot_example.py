@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 import asyncio
 from aiohttp import web
-
+from flask import Flask
 # ----------------- CONFIG -----------------
 API_URL = os.getenv("API_URL", "").rstrip("/")           # es: https://auth-api-xxxxx.onrender.com
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
@@ -21,6 +21,12 @@ def make_code(n: int = 6) -> str:
     alphabet = string.ascii_uppercase + string.digits
     return "X" + "".join(random.choice(alphabet) for _ in range(n))
 
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "ciao!"
 @bot.event
 async def on_ready():
     try:
@@ -85,3 +91,5 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(start_web_server())  # avvia server web in parallelo
     bot.run(DISCORD_TOKEN)
+    port = int(os.environ.get("port", 5000))
+    app.run(host="0.0.0.0", port=port)
