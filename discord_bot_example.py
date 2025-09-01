@@ -6,12 +6,12 @@ import discord
 from discord.ext import commands
 import asyncio
 from aiohttp import web
-from flask import Flask
+
 # ----------------- CONFIG -----------------
-API_URL = os.getenv("API_URL", "").rstrip("/")           # es: https://auth-api-xxxxx.onrender.com
+API_URL = os.getenv("API_URL", "").rstrip("/")
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-PORT = int(os.environ.get("PORT", 10000))               # Render imposta la porta tramite env
+PORT = int(os.environ.get("PORT", 10000))
 
 # ----------------- BOT DISCORD -----------------
 intents = discord.Intents.default()
@@ -21,12 +21,6 @@ def make_code(n: int = 6) -> str:
     alphabet = string.ascii_uppercase + string.digits
     return "X" + "".join(random.choice(alphabet) for _ in range(n))
 
-
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return "ciao!"
 @bot.event
 async def on_ready():
     try:
@@ -44,7 +38,7 @@ async def gencode(interaction: discord.Interaction):
     code = make_code()
     payload = {
         "code": code,
-        "ttl_seconds": 900,  # 15 minuti
+        "ttl_seconds": 900,
         "metadata": {"discord_id": str(interaction.user.id)}
     }
 
@@ -74,11 +68,11 @@ async def gencode(interaction: discord.Interaction):
 async def handle(request):
     return web.Response(text="Bot online ✔️")
 
-app = web.Application()
-app.add_routes([web.get("/", handle)])
+web_app = web.Application()
+web_app.add_routes([web.get("/", handle)])
 
 async def start_web_server():
-    runner = web.AppRunner(app)
+    runner = web.AppRunner(web_app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", PORT)
     await site.start()
@@ -89,7 +83,5 @@ if __name__ == "__main__":
     if not DISCORD_TOKEN:
         raise SystemExit("Manca DISCORD_TOKEN nelle variabili d'ambiente.")
     loop = asyncio.get_event_loop()
-    loop.create_task(start_web_server())  # avvia server web in parallelo
+    loop.create_task(start_web_server())
     bot.run(DISCORD_TOKEN)
-    port = int(os.environ.get("port", 5000))
-    app.run(host="0.0.0.0", port=port)
