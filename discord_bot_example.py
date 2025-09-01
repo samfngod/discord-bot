@@ -6,10 +6,10 @@ import os, aiohttp, random, string
 import discord
 from discord.ext import commands
 
-API_URL = os.getenv("API_URL", "https://auth-api-dvl2.onrender.com/").rstrip("/")           # es: https://auth-api-xxxxx.onrender.com
+API_URL = os.getenv("API_URL", "").rstrip("/")           # es: https://auth-api-xxxxx.onrender.com
 # Default di sicurezza: usa ENV; se non presente, fallback alla chiave che mi hai dato (puoi toglierla se vuoi)
-ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "f9A7d3!X2vQ#8LmRp6ZyT0wB1uH4eKjS")
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTQxMjExMDM1NTIxNTQxNzM2NA.Gf1zDn.HU_3XWct88ayYPGWbQWhdsRFBtyC0AqTIzm1GE")           # token del bot dal Developer Portal
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")           # token del bot dal Developer Portal
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
