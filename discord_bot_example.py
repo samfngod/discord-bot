@@ -5,16 +5,15 @@ import string
 import discord
 from discord.ext import commands, tasks
 import asyncio
-from aiohttp import web
 
 # ----------------- CONFIG -----------------
 API_URL = os.getenv("API_URL", "").rstrip("/")
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-PORT = int(os.environ.get("PORT", 10000))  # Render assegna la porta
 
 # ----------------- BOT DISCORD -----------------
 intents = discord.Intents.default()
+intents.message_content = True  # abilita contenuto dei messaggi
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 def make_code(n: int = 6) -> str:
@@ -65,20 +64,6 @@ async def gencode(interaction: discord.Interaction):
         await interaction.response.send_message("Errore nella creazione del codice.", ephemeral=True)
         print("[BOT] Risposta API:", data)
 
-# ----------------- SERVER WEB MINIMO PER RENDER -----------------
-async def handle(request):
-    return web.Response(text="Bot online ✔️")
-
-web_app = web.Application()
-web_app.add_routes([web.get("/", handle)])
-
-async def start_web_server():
-    runner = web.AppRunner(web_app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", PORT)
-    await site.start()
-    print(f"[WEB] Server web in ascolto su porta {PORT}")
-
 # ----------------- TASK AUTOMATICO OGNI 5 MIN -----------------
 @tasks.loop(minutes=5)
 async def comando_automatico():
@@ -91,6 +76,4 @@ async def comando_automatico():
 if __name__ == "__main__":
     if not DISCORD_TOKEN:
         raise SystemExit("Manca DISCORD_TOKEN nelle variabili d'ambiente.")
-    loop = asyncio.get_event_loop()
-    loop.create_task(start_web_server())  # avvia server web parallelo
     bot.run(DISCORD_TOKEN)
